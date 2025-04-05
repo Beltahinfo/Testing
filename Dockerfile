@@ -22,4 +22,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["node", "beltahke.js"]
+CMD ["node", "read.js"]
