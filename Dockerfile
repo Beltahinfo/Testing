@@ -22,4 +22,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["node", "read.js"]
+CMD ["npm", "run" , "beltahinc"] 
