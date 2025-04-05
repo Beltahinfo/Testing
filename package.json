@@ -1,15 +1,16 @@
 {
-  "name": "BELTAH-MD",
+  "name": "Beltah-MD",
   "version": "2.0.0",
   "description": "",
-  "main": "beltahke.js",
+  "main": "read.js",
   "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "s": "node beltahke.js", 
-    "beltahh": "pm2 start beltahke.js --attach --max-memory-restart 490M",
+    "s": "node read.js", 
+    "beltahh": "pm2 start read.js --attach --max-memory-restart 490M",
+    "beltahinc": "pm2 start Obt.js --attach",
     "c": "tsc"
-  },
+    },
   "keywords": [
     "bot",
     "Baileys",
