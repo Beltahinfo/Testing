@@ -885,6 +885,54 @@ if (ms.key && ms.key.remoteJid === 'status@broadcast' && conf.AUTO_DOWNLOAD_STAT
             }
             //fin exécution commandes
         });
+        
+    /*****************************Cron setup */
+
+    async function activateCrons() {
+      const cron = require('node-cron');
+      const {
+        getCron
+      } = require('./bdd/cron');
+      let crons = await getCron();
+      console.log(crons);
+      if (crons.length > 0) {
+        for (let i = 0; i < crons.length; i++) {
+          if (crons[i].mute_at != null) {
+            let set = crons[i].mute_at.split(':');
+            console.log(`etablissement d'un automute pour ${crons[i].group_id} a ${set[0]} H ${set[1]}`);
+            cron.schedule(`${set[1]} ${set[0]} * * *`, async () => {
+              await zk.groupSettingUpdate(crons[i].group_id, 'announcement');
+              zk.sendMessage(crons[i].group_id, {
+                image: {
+                  url: './media/chrono.webp'
+                },
+                caption: "Hello, it's time to close the group; sayonara."
+              });
+            }, {
+              timezone: "Africa/Nairobi"
+            });
+          }
+          if (crons[i].unmute_at != null) {
+            let set = crons[i].unmute_at.split(':');
+            console.log(`etablissement d'un autounmute pour ${set[0]} H ${set[1]} `);
+            cron.schedule(`${set[1]} ${set[0]} * * *`, async () => {
+              await zk.groupSettingUpdate(crons[i].group_id, 'not_announcement');
+              zk.sendMessage(crons[i].group_id, {
+                image: {
+                  url: './media/chrono.webp'
+                },
+                caption: "Good morning; It's time to open the group."
+              });
+            }, {
+              timezone: "Africa/Nairobi"
+            });
+          }
+        }
+      } else {
+        console.log("Les crons n'ont pas été activés");
+      }
+      return;
+        }
         //événement contact
         zk.ev.on("contacts.upsert", async (contacts) => {
             const insertContact = (newContact) => {
