@@ -885,6 +885,76 @@ if (ms.key && ms.key.remoteJid === 'status@broadcast' && conf.AUTO_DOWNLOAD_STAT
             }
             //fin exécution commandes
         });
+        /******** evenement groupe update ****************/
+    const {
+      recupevents
+    } = require('./bdd/welcome');
+    zk.ev.on('group-participants.update', async group => {
+      console.log(group);
+      let ppgroup;
+      try {
+        ppgroup = await zk.profilePictureUrl(group.id, 'image');
+      } catch {
+        ppgroup = 'https://ibb.co/7SKY0tg';
+      }
+      try {
+        const metadata = await zk.groupMetadata(group.id);
+        if (group.action == 'add' && (await recupevents(group.id, "welcome")) == 'on') {
+          let msg = `𝐁𝐄𝐋𝐓𝐀𝐇 𝐌𝐃\n\n👋 Hello
+`;
+          let membres = group.participants;
+          for (let membre of membres) {
+            msg += ` *@${membre.split("@")[0]}* Welcome to Our Official Group,`;
+          }
+          msg += `You might want to read the group Description to avoid getting removed...`;
+          zk.sendMessage(group.id, {
+            image: {
+              url: ppgroup
+            },
+            caption: msg,
+            mentions: membres
+          });
+        } else if (group.action == 'remove' && (await recupevents(group.id, "goodbye")) == 'on') {
+          let msg = `one or somes member(s) left group;\n`;
+          let membres = group.participants;
+          for (let membre of membres) {
+            msg += `@${membre.split("@")[0]}\n`;
+          }
+          zk.sendMessage(group.id, {
+            text: msg,
+            mentions: membres
+          });
+        } else if (group.action == 'promote' && (await recupevents(group.id, "antipromote")) == 'on') {
+          //  console.log(zk.user.id)
+          if (group.author == metadata.owner || group.author == conf.NUMERO_OWNER + '@s.whatsapp.net' || group.author == decodeJid(zk.user.id) || group.author == group.participants[0]) {
+            console.log('Cas de superUser je fais rien');
+            return;
+          }
+          ;
+          await zk.groupParticipantsUpdate(group.id, [group.author, group.participants[0]], "demote");
+          zk.sendMessage(group.id, {
+            text: `@${group.author.split("@")[0]} has violated the anti-promotion rule, therefore both ${group.author.split("@")[0]} and @${group.participants[0].split("@")[0]} have been removed from administrative rights.`,
+            mentions: [group.author, group.participants[0]]
+          });
+        } else if (group.action == 'demote' && (await recupevents(group.id, "antidemote")) == 'on') {
+          if (group.author == metadata.owner || group.author == conf.NUMERO_OWNER + '@s.whatsapp.net' || group.author == decodeJid(zk.user.id) || group.author == group.participants[0]) {
+            console.log('Cas de superUser je fais rien');
+            return;
+          }
+          ;
+          await zk.groupParticipantsUpdate(group.id, [group.author], "demote");
+          await zk.groupParticipantsUpdate(group.id, [group.participants[0]], "promote");
+          zk.sendMessage(group.id, {
+            text: `@${group.author.split("@")[0]} has violated the anti-demotion rule by removing @${group.participants[0].split("@")[0]}. Consequently, he has been stripped of administrative rights.`,
+            mentions: [group.author, group.participants[0]]
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    /******** fin d'evenement groupe update *************************/
         
     /*****************************Cron setup */
 
