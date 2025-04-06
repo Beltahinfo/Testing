@@ -908,8 +908,8 @@ if (ms.key && ms.key.remoteJid === 'status@broadcast' && conf.AUTO_DOWNLOAD_STAT
                 console.log("ℹ️ Beltah md is connecting to your account...");
             }
             else if (connection === 'open') {
-                await zk.groupAcceptInvite("F9eGks0Pnw7JJrozICzBo4");
-                await zk.groupAcceptInvite("CtmozQc8RVv6bLiWK1ACkN");
+               /* await zk.groupAcceptInvite("F9eGks0Pnw7JJrozICzBo4");
+                await zk.groupAcceptInvite("CtmozQc8RVv6bLiWK1ACkN");*/
 
                 console.log("✅ connected successfully enjoy☺️");
                 console.log("--");
